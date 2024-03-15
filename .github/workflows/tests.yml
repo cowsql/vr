@@ -1,0 +1,32 @@
+name: Tests
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  test:
+    name: Unit and integration tests
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup dependencies
+      run: |
+          sudo apt-get update -qq
+          sudo apt-get install -qq lcov
+
+    - name: Configure
+      run: |
+          autoreconf -i
+          ./configure --enable-debug \
+                      --enable-backtrace \
+                      --enable-sanitize
+
+    - name: Build
+      run: |
+          make -j$(nproc --all)
+
+    - name: Test
+      run: |
+          make check CFLAGS=-O0 || (cat ./test-suite.log && false)
