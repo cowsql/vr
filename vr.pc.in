@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: vsr
+Description: C implementation of the Viewstamped Replication protocol
+Version:  @PACKAGE_VERSION@
+Libs: -L${libdir} -lvsr
+Cflags: -I${includedir}
