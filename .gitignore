@@ -22,5 +22,8 @@ stamp-h1
 .deps/
 .libs/
 test-suite.log
+test/integration/core
+test/*/*.log
+test/*/*.trs
 coverage/
 coverage.info

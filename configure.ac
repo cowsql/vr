@@ -75,7 +75,6 @@ AS_IF([test "x$enable_hardening" != "xno"],
       [])
 
 AC_SUBST(AM_CFLAGS)
-
 AC_SUBST(AM_LDLAGS)
 
 AC_CONFIG_FILES([vr.pc Makefile])

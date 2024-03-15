@@ -16,6 +16,23 @@ libvr_la_SOURCES = \
 
 bin_PROGRAMS =
 
+check_PROGRAMS = \
+  test/integration/core
+TESTS = $(check_PROGRAMS)
+
+check_LTLIBRARIES = libtest.la
+
+libtest_la_CFLAGS = $(AM_CFLAGS) -DMUNIT_TEST_NAME_LEN=60 -Wno-unused-result -Wno-conversion
+libtest_la_SOURCES = \
+  test/lib/munit.c
+
+test_integration_core_SOURCES = \
+  test/integration/main_core.c \
+  test/integration/test_step.c
+test_integration_core_CFLAGS = $(AM_CFLAGS) -Wno-conversion
+test_integration_core_LDFLAGS = -no-install
+test_integration_core_LDADD = libtest.la libvr.la
+
 if BACKTRACE_ENABLED
 libvr_la_CFLAGS += -DVR_ASSERT_WITH_BACKTRACE
 libvr_la_LDFLAGS += -lbacktrace

@@ -3,6 +3,6 @@
 
 #define VR_API __attribute__((visibility("default")))
 
-int vr_step(void);
+VR_API int vr_step(void);
 
 #endif /* VR_H */
