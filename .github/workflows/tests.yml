@@ -30,3 +30,17 @@ jobs:
     - name: Test
       run: |
           make check CFLAGS=-O0 || (cat ./test-suite.log && false)
+
+  linting:
+    name: Linting
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: DoozyX/clang-format-lint-action@v0.14
+      with:
+        source: 'src test'
+        exclude: 'test/lib/munit.*'
+        extensions: 'c,h'
+        clangFormatVersion: 14
+        style: file
