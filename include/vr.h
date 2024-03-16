@@ -5,7 +5,13 @@
 
 #define VR_API __attribute__((visibility("default")))
 
-enum { VR_NOMEM = 1, VR_DUPLICATEID, VR_DUPLICATEADDRESS, VR_BADROLE };
+enum {
+    VR_NOMEM = 1,
+    VR_DUPLICATEID,
+    VR_DUPLICATEADDRESS,
+    VR_BADROLE,
+    VR_INVALID /* Invalid parameter */
+};
 
 /* Customizable tracer for debugging, logging and metrics purposes. */
 struct vr_tracer
@@ -129,7 +135,38 @@ struct vr
 VR_API int vr_init(struct vr *v, unsigned id);
 VR_API int vr_close(struct vr *v);
 
-VR_API int vr_step(void);
+enum vr_event_type {
+    VR_START = 1, /* Initial event starting the server. */
+    VR_RECEIVE    /* A message has been received from another server. */
+};
+
+/* Represents an external event that drives the VR engine forward (for example
+ * receiving a message). */
+struct vr_event
+{
+    unsigned long time;
+    enum vr_event_type type;
+    unsigned char unused;
+    unsigned short capacity;
+    unsigned char reserved[4];
+    union {
+        struct
+        {
+            unsigned long view;
+        } start;
+    };
+};
+
+/* Hold information about changes that user code must perform after a call to
+ * vr_step() returns (e.g. new messages that must be sent, etc.). */
+struct vr_update
+{
+    unsigned flags;
+};
+
+VR_API int vr_step(struct vr *v,
+                   const struct vr_event *event,
+                   struct vr_update *update);
 
 /**
  * User-definable dynamic memory allocation functions.

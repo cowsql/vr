@@ -1,7 +1,14 @@
 #include "../include/vr.h"
 
+#include <stdio.h>
+#include <string.h>
+
+#include "assert.h"
 #include "configuration.h"
 #include "heap.h"
+#include "tracing.h"
+
+#define infof(...) Infof(v->tracer, "> " __VA_ARGS__)
 
 int vr_init(struct vr *v, unsigned id)
 {
@@ -22,8 +29,52 @@ int vr_close(struct vr *v)
     return 0;
 }
 
-int vr_step(void)
+/* Emit a start message containing information about the current state. */
+static void stepStartEmitMessage(const struct vr *v)
 {
+    char msg[512] = {0};
+    char msg_view[64];
+
+    sprintf(msg_view, "view %lu", v->view);
+    strcat(msg, msg_view);
+
+    infof("%s", msg);
+}
+
+/* Handle a VR_START event. */
+static int stepStart(struct vr *v, unsigned long view)
+{
+    v->view = view;
+    stepStartEmitMessage(v);
+    return 0;
+}
+
+int vr_step(struct vr *v,
+            const struct vr_event *event,
+            struct vr_update *update)
+{
+    int rv;
+
+    assert(event != NULL);
+    assert(update != NULL);
+
+    switch (event->type) {
+        case VR_START:
+            rv = stepStart(v, event->start.view);
+            break;
+        default:
+            rv = VR_INVALID;
+            break;
+    }
+
+    if (rv != 0) {
+        goto out;
+    }
+
+out:
+    if (rv != 0) {
+        return rv;
+    }
     return 0;
 }
 

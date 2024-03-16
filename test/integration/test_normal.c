@@ -25,6 +25,7 @@ SUITE(normal)
 TEST(normal, request, setUp, tearDown, 0, NULL)
 {
     struct fixture *f = data;
-    (void)f;
+    CLUSTER_START(1);
+    CLUSTER_TRACE("[   0] 1 > view 0\n");
     return MUNIT_OK;
 }
