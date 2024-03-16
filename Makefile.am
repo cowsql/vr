@@ -26,10 +26,12 @@ check_LTLIBRARIES = libtest.la
 
 libtest_la_CFLAGS = $(AM_CFLAGS) -DMUNIT_TEST_NAME_LEN=60 -Wno-unused-result -Wno-conversion
 libtest_la_SOURCES = \
+  test/lib/cluster.c \
   test/lib/munit.c
 
 test_integration_core_SOURCES = \
   test/integration/main_core.c \
+  test/integration/test_normal.c \
   test/integration/test_step.c
 test_integration_core_CFLAGS = $(AM_CFLAGS) -Wno-conversion
 test_integration_core_LDFLAGS = -no-install

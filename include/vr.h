@@ -50,6 +50,17 @@ struct vr_tracer_info
     };
 };
 
+struct vr_buffer
+{
+    void *base; /* Pointer to the buffer data. */
+    size_t len; /* Length of the buffer. */
+};
+
+struct vr_op
+{
+    struct vr_buffer buf; /* Operation data. */
+};
+
 enum vr_role { VR_VOTER = 1, VR_STANDBY, VR_SPARE };
 
 struct vr_server
@@ -69,6 +80,54 @@ struct vr_configuration
     struct vr_server *servers; /* Array of servers member of the cluster. */
     unsigned n;                /* Number of servers in the array. */
 };
+
+/* From Section 3:
+ *
+ *  VR uses three sub-protocols that work together to ensure correctness:
+ *
+ *  - Normal case processing of user requests.
+ *  - View changes to select a new primary.
+ *  - Recovery of a failed replica so that it can rejoin the group.
+ */
+enum vr_status { VR_NORMAL = 1, VR_VIEW_CHANGE, VR_RECOVERING };
+
+/* From Figure 2:
+ *
+ *  This is an array containing op-number entries. The entries contain the
+ *  requests that have been received so far in their assigned order.
+ */
+struct vr_log
+{
+    struct vr_op *ops;
+};
+
+/* From Figure 2:
+ *
+ *  This records for each client the number of its most recent request, plus, if
+ *  the request has been executed, the result sent for that request.
+ */
+struct vr_client_table
+{
+    unsigned n; /* Number of registered clients */
+};
+
+struct vr
+{
+    /* Figure 2: VR state at a replica */
+    struct vr_configuration configuration; /* Current configuration */
+    unsigned id;                           /* Replica ID (replica number) */
+    unsigned long view;                    /* Current view number */
+    enum vr_status status;                 /* Current sub-protocol */
+    unsigned long op_number;               /* Current operation number */
+    struct vr_log log;                     /* Requests received so far */
+    unsigned long commit_number;           /* Most recently committed op */
+    struct vr_client_table client_table;   /* Registered clients */
+
+    struct vr_tracer *tracer; /* Custom tracer */
+};
+
+VR_API int vr_init(struct vr *v, unsigned id);
+VR_API int vr_close(struct vr *v);
 
 VR_API int vr_step(void);
 
