@@ -6,6 +6,7 @@
 #include "assert.h"
 #include "configuration.h"
 #include "heap.h"
+#include "recv.h"
 #include "tracing.h"
 
 #define infof(...) Infof(v->tracer, "> " __VA_ARGS__)
@@ -49,6 +50,25 @@ static int stepStart(struct vr *v, unsigned long view)
     return 0;
 }
 
+/* Handle new messages. */
+static int stepReceive(struct vr *v, struct vr_message *message)
+{
+    const char *desc;
+
+    switch (message->type) {
+        case VR_REQUEST:
+            desc = "request";
+            break;
+        default:
+            desc = "unknown message";
+            break;
+    }
+
+    infof("recv %s from server %u", desc, message->server_id);
+
+    return recvMessage(v, message);
+}
+
 int vr_step(struct vr *v,
             const struct vr_event *event,
             struct vr_update *update)
@@ -61,6 +81,9 @@ int vr_step(struct vr *v,
     switch (event->type) {
         case VR_START:
             rv = stepStart(v, event->start.view);
+            break;
+        case VR_RECEIVE:
+            rv = stepReceive(v, event->receive.message);
             break;
         default:
             rv = VR_INVALID;

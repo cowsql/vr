@@ -14,6 +14,8 @@ libvr_la_LDFLAGS = -version-info 0:0:0
 libvr_la_SOURCES = \
   src/configuration.c \
   src/heap.c \
+  src/recv.c \
+  src/recv_request.c \
   src/vr.c
 
 bin_PROGRAMS =

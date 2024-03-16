@@ -96,12 +96,15 @@ struct vr_reply
     struct vr_buffer result;
 };
 
-enum vr_message_type { VR_PREPARE = 1, VR_PREPARE_OK, VR_REPLY };
+enum vr_message_type { VR_REQUEST = 1, VR_PREPARE, VR_PREPARE_OK, VR_REPLY };
 
 struct vr_message
 {
     enum vr_message_type type;
+    unsigned server_id;
+    const char *server_address;
     union {
+        struct vr_request request;
         struct vr_prepare prepare;
         struct vr_prepare_ok prepare_ok;
         struct vr_reply reply;
@@ -185,16 +188,17 @@ enum vr_event_type {
  * receiving a message). */
 struct vr_event
 {
-    unsigned long time;
     enum vr_event_type type;
-    unsigned char unused;
-    unsigned short capacity;
-    unsigned char reserved[4];
+    unsigned long time;
     union {
         struct
         {
             unsigned long view;
         } start;
+        struct
+        {
+            struct vr_message *message;
+        } receive;
     };
 };
 
