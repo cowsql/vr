@@ -67,6 +67,47 @@ struct vr_op
     struct vr_buffer buf; /* Operation data. */
 };
 
+struct vr_request
+{
+    struct vr_op op;
+    unsigned client_id;     /* Client sending the request */
+    unsigned long sequence; /* Request number */
+};
+
+struct vr_prepare
+{
+    unsigned long view;          /* Current view number */
+    struct vr_request request;   /* Request received from client */
+    unsigned long op_number;     /* Op-number assigned to the request */
+    unsigned long commit_number; /* Current commit number */
+};
+
+struct vr_prepare_ok
+{
+    unsigned long view;
+    unsigned long op_number;
+    unsigned replica_id;
+};
+
+struct vr_reply
+{
+    unsigned long view;
+    unsigned long sequence;
+    struct vr_buffer result;
+};
+
+enum vr_message_type { VR_PREPARE = 1, VR_PREPARE_OK, VR_REPLY };
+
+struct vr_message
+{
+    enum vr_message_type type;
+    union {
+        struct vr_prepare prepare;
+        struct vr_prepare_ok prepare_ok;
+        struct vr_reply reply;
+    };
+};
+
 enum vr_role { VR_VOTER = 1, VR_STANDBY, VR_SPARE };
 
 struct vr_server
